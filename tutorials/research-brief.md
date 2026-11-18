@@ -24,8 +24,8 @@ The **Research Assistant** searches through a local `SearXNG` container first.
 
 ## Step 2: Create a Research Project
 
-1. In the left sidebar of Thea, select **Research Assistant** under **Persona**.
-2. Click **New** next to **Projects**.
+1. In the left sidebar of Thea, click **New** next to **Projects**.
+2. Select **Research Assistant** in **Assistant Persona**.
 3. Select the **Empty Project** template.
 4. Choose a new empty folder, such as `~/projects/reflexion-study`.
 5. Type `Reflexion Study` in **Project Name** and click **Create Project**.
@@ -42,13 +42,13 @@ The **Research Assistant** searches through a local `SearXNG` container first.
 
 As Thea works, it follows a strict sequence of tools:
 
-1. It loads the `task-checklist` skill with `load_skill` and writes `TASK.md` in the project root.
+1. It plans with `sequentialthinking` and writes `TASK.md` in the project root.
 2. It plans its steps with the `sequentialthinking` tool. Each thought appears as a collapsed **Thought** block in the chat. Click **Thought** to read it.
 3. It looks up the paper metadata with `lookup_paper` and searches the web with `web_search`.
 4. It registers each source with `add_source`. This tool writes the verified record to `research/sources.json` and returns a key such as `[S1]`.
 5. It writes factual notes to `research/notes.md`, tagged with `[S1]` and `[S2]`.
 6. It writes the draft to `research/drafts/reflexion.md` from `research/notes.md`.
-7. It runs `check_style` to check `ASD-STE100` rules and `check_citations` to check that every `[S#]` key exists in `research/sources.json`.
+7. It runs `check_citations` to check that every `[S#]` key exists in `research/sources.json`.
 
 ## Step 5: Inspect the Research Files
 

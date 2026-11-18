@@ -1,27 +1,26 @@
 # Thea Documentation
 
-Thea is a chat app for your desktop, like `ChatGPT`. It also runs as an agent over your own project folder. You pick a persona: Personal Assistant, Research Assistant, or Software Engineer. The agent reads and edits files, runs commands, searches the web, and keeps a ledger of sources. It works with local models through `Ollama` or any server that speaks the `OpenAI` protocol, and with hosted providers such as `OpenRouter`. Every write and command waits for your approval.
+Thea is a chat app for your desktop, like `ChatGPT`. It also runs as an agent over your own project folder. Each project has a persona, Personal Assistant or Research Assistant, and a chat without a project is a plain chat. The agent reads and edits files, runs commands, searches the web, and keeps a ledger of sources. It works with local models through `Ollama` or any server that speaks the `OpenAI` protocol, and with hosted providers such as `OpenRouter`. Every write and command waits for your approval.
 
 ## Personas
 
-Thea ships with 3 personas. Each one has its own system prompt, tool set, and starter prompts. You can add your own.
+Thea ships with 2 personas. Each one has its own system prompt, tool set, and starter prompts. You can add your own.
 
 | Persona | Use it for | Tools |
 |---|---|---|
-| Personal Assistant | Plans, drafts, notes, everyday tasks | Files, `run_command`, skills |
-| Research Assistant | Sourced briefs, papers, proposals, essays, book research | Files, `web_search`, `fetch_url`, `lookup_paper`, source ledger, style and citation checks |
-| Software Engineer | Reading code, writing tests, fixing bugs, scaffolding | Files, `run_command`, skills |
+| Personal Assistant | Tasks, events, `.ics` calendars, memos, notes | Files, docket, `export_calendar`, `web_search`, `fetch_url`, `run_command`, skills |
+| Research Assistant | Sourced briefs, papers, proposals, essays, book research | Files, `web_search`, `fetch_url`, `lookup_paper`, `add_note`, source ledger, citation check |
 
 ## Main Features
 
 - **Agent loop for small models**: a `TASK.md` checklist, up to 4 nudges in a round, and up to 6 rounds. Model tiers (small, medium, large) set the prompt budget, the cap on tool output, and the step cap.
-- **Approval gate**: `list_dir`, `read_file`, and `search` run inside the project without asking. `write_file`, `edit_file`, `add_source`, and `run_command` show a diff or a command and wait for Approve, Always Allow for Project, or Reject. The tools for files stay inside the project root and do not read `.env*` files.
-- **Research with a source ledger**: `web_search` uses local `SearXNG`, then `Tavily` in keyless mode, then `DuckDuckGo`. `fetch_url` reads pages and `PDF` files. `lookup_paper` queries `OpenAlex`, `Crossref`, and `arXiv`. A draft can cite only keys that `add_source` returned. `check_citations` and `check_style` (`ASD-STE100`) run before the agent completes a draft.
+- **Approval gate**: `list_directory`, `read_file`, `search_files`, and `find_files` run inside the project without asking. `write_file`, `edit_file`, `add_source`, and `run_command` show a diff or a command and wait for Approve, Always Allow for Project, or Reject. The tools for files stay inside the project root and do not read `.env*` files.
+- **Research with a source ledger**: `web_search` uses local `SearXNG`, then `Tavily` in keyless mode, then `DuckDuckGo`. `fetch_url` reads pages and `PDF` files. `lookup_paper` queries `OpenAlex`, `Crossref`, and `arXiv`. A draft can cite only keys that `add_source` returned. `check_citations` runs before the agent completes a draft.
 - **Projects and templates**: open a folder or start from 5 templates (`React + Vite`, `Python`, `Node.js CLI`, `static HTML`, empty). Add project instructions and pin files into the prompt.
 - **Artifacts and live preview**: view code, read Markdown, and run `HTML` and `SVG` in a sandboxed `iframe`.
-- **Skills and lessons**: 10 bundled skills loaded on demand with `load_skill`. Thea records up to 20 lessons for each persona in `~/.thea/lessons/`. The lessons come from citation checks, ratings, and repeated tool errors.
+- **Skills and lessons**: 13 bundled skills loaded on demand with `load_capability`. Thea records up to 20 lessons for each persona in `~/.thea/lessons/`. The lessons come from citation checks, ratings, and repeated tool errors.
 - **Model Context Protocol (`MCP`)**: connect `stdio` `MCP` servers. `sequential-thinking` and `playwright` ship as presets.
-- **Any model can use tools**: Thea uses the native tool calls of a model when the provider reports them. For other models, it parses `<tool_call>` blocks.
+- **Any model can use tools**: Thea uses the native tool calls of a model when the provider reports them. A model that cannot call tools natively chats without tools.
 - **Secrets in the keychain**: provider `API` keys live in the macOS Keychain or Windows Credential Manager, not in `~/.thea/*.json`.
 
 ## Download

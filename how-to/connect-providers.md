@@ -13,3 +13,16 @@ Use these steps to connect `LM Studio`, `llama.cpp`, `vLLM`, `OpenRouter`, `Open
 5. If the server needs an `API` key, type it in **API Key**. Thea saves the key in your operating system keychain.
 6. Click **Test Connection** to check that the endpoint answers and lists models.
 7. Click **Save Settings**.
+
+## Set the Ollama Context Window
+
+Use these steps to give a local `Ollama` model a larger context window. Thea does not send a window size to `Ollama`. The `Ollama` server decides.
+
+1. Stop the `Ollama` server.
+2. Start it again with the `OLLAMA_CONTEXT_LENGTH` variable:
+
+```bash
+OLLAMA_CONTEXT_LENGTH=32768 ollama serve
+```
+
+3. Send a new message in Thea. The model now uses the larger window.

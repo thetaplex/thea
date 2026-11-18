@@ -6,21 +6,32 @@ A small model on your machine can stop early. A model may reply with its plan fo
 
 ## Checklist-Driven Completion (`TASK.md`)
 
-The `task-checklist` skill tells the model to write `TASK.md` in the project root before any other step. Each deliverable criterion is an unchecked box (`- [ ]`).
+`TASK.md` is for projects only. A chat without a project does not use it. In a project, the first tool call of the model writes `TASK.md` in the project root. Each deliverable criterion is an unchecked box (`- [ ]`).
 
-When the model replies with text and no tool calls, the agent loop reads `<project>/TASK.md`. If a `- [ ]` line is still open, the turn does not end. The loop adds an ephemeral user message (a nudge) that lists the open items. The nudge tells the model to do the next item and tick it with `edit_file`. The loop sends up to `4` nudges in each round.
+At the start of a turn, Thea empties a `TASK.md` that has no open items, so a new request starts with a new checklist. A `TASK.md` with open items stays, so the turn continues the task.
+
+When the model replies with text and no tool calls, the agent loop reads `TASK.md` and does one of these:
+
+| State of `TASK.md` | Meaning | Result |
+|---|---|---|
+| No items | The task did not start | 1 nudge: write `TASK.md`, then do the first item. After this nudge, the reply is the answer. |
+| The next open item starts with `Ask the user` | The model waits for the user | The turn ends. The next turn continues the task. |
+| Open items | The task is in progress | A nudge lists the open items, up to `4` in each round. |
+| All items are `[x]` or `[!]` | The task is complete | The turn ends. |
+
+A nudge is an ephemeral user message. It tells the model to do the next item and tick it with `edit_file`.
 
 ## Multi-Round Context Reset
 
-Each model tier has a limit on steps in a round (`30` for `Small`, `45` for `Medium`, and `60` for `Large`). When a round reaches its step limit on a tool call and `TASK.md` still has open `- [ ]` items, Thea does not abort the task:
+Each model tier has a limit on model requests in a round (`30` for `Small`, `45` for `Medium`, and `60` for `Large`). When a round reaches that limit and `TASK.md` still has open `- [ ]` items, Thea does not abort the task. On the last request of a round, it removes all tools and asks the model for a status summary. Then it does this:
 
-1. It makes a call with no tools and asks the model for an 8-line status summary.
+1. It keeps the 8-line status summary of the model.
 2. It starts a new round (up to `6` rounds) with a fresh message history.
 3. It drops the old tool outputs from earlier rounds. It sends a short brief with the request, the last status, and the current `TASK.md`.
 4. The model continues from the notes in `research/notes.md` and the sources in `research/sources.json`.
 
 This design keeps the size of the prompt within a context window of `32768` tokens during a long research run.
 
-## Refusal of Repeated Failing Tool Calls
+## Detection of Repeated Tool Calls
 
-Small models can get stuck calling the same failing URL in a loop. The loop for the agent tracks the `(tool_name, arguments)` pair of each call in the round. After `3` failures, it refuses to run that call again. It tells the model to pick another source or go to the next item in `TASK.md`.
+Small models can get stuck calling the same failing URL in a loop. The `DetectLoops` capability of `pydantic-ai-harness` watches the recent tool calls and results. When it sees the same call, the same result, or an alternating pattern repeat, it adds a nudge to the chat. The nudge tells the model to change its approach or to explain what blocks it. A nudge does not stop the turn.

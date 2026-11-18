@@ -39,9 +39,9 @@ just setup
 
 ## Step 3: Create a Project from a Template
 
-1. In the left sidebar, find the **Persona** dropdown and select **Software Engineer**.
-2. Under **Projects**, click **New**.
-3. In the **Create or Open Project** dialog, select the `Interactive HTML / Canvas` template (`static-html`).
+1. In the left sidebar, under **Projects**, click **New**.
+2. In the **Create or Open Project** dialog, select **Personal Assistant** in **Assistant Persona**.
+3. Select the `Interactive HTML / Canvas` template (`static-html`).
 4. Click **Browse** next to **Workspace Folder Path** and choose an empty folder on your disk, such as `~/projects/thea-demo`.
 5. Type `Thea Demo` in **Project Name**.
 6. Click **Create Project**.
