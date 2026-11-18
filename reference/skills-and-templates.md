@@ -23,6 +23,8 @@ Thea has 13 built-in skills. They are always available to `load_capability`, but
 
 ## Bundled Project Templates
 
+The **Personal Assistant** and the **Research Assistant** show only **Empty Project** and **Existing Folder**. A custom persona shows all the templates.
+
 | Template ID | Name | Files Created |
 |---|---|---|
 | `empty` | Empty Project | None |

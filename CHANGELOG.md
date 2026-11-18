@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-19
+
+### Added
+
+- The artifact bar has a **Refresh** button. It reads the open file again from the project folder and reloads the preview.
+- The artifact bar has a **Save as PDF** button. It opens the artifact in its own window with the print dialog. On macOS, select **PDF** > **Save as PDF**. On Windows, select **Microsoft Print to PDF**.
+
+### Changed
+
+- New projects for the Personal Assistant and the Research Assistant offer only **Empty Project** and **Existing Folder**. The code templates are for custom personas only. Tutorial 1 starts from an empty project, and it installs Thea from a release instead of building it from source.
+
+### Fixed
+
+- When Thea asks you a question in a project, it waits for your answer. Before, it could guess the answers and go on, for example with the intake questions of a new book. A new tool, `ask_user`, ends the turn after the question.
+- When you open a different project, the chat pane and the artifact pane show only that project. Before, the old project's artifacts, streaming state and errors could stay on screen, and a slow project load could replace a later one.
+
 ## [0.1.2] - 2026-11-18
 
 Thea is in beta. The installers have no code signature from Apple or Microsoft. To open Thea the first time, see [Install Thea](https://github.com/thetaplex/thea/blob/main/how-to/install-thea.md).
@@ -109,7 +125,8 @@ Thea is in beta. The installers have no code signature from Apple or Microsoft. 
 - A thinking call past the limit of 5 no longer ends the turn. The tool stays available and answers that the thinking steps are used up.
 - `edit_file` needs `old_text`. A call without it is told to use `write_file` to change the whole file.
 
-[Unreleased]: https://github.com/thetaplex/thea/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/thetaplex/thea/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/thetaplex/thea/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/thetaplex/thea/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/thetaplex/thea/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/thetaplex/thea/releases/tag/v0.1.0
