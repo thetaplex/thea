@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-18
+
+Thea is in beta. The installers have no code signature from Apple or Microsoft. To open Thea the first time, see [Install Thea](https://github.com/thetaplex/thea/blob/main/how-to/install-thea.md).
+
+### Added
+
+- How-to guide [Install Thea](https://github.com/thetaplex/thea/blob/main/how-to/install-thea.md): how to open Thea the first time on macOS and on Windows.
+
+### Fixed
+
+- The macOS app opens after you download it. Versions 0.1.0 and 0.1.1 had no signature for the bundle as a whole, so macOS said "Thea is damaged and can't be opened". The app now has an ad-hoc signature, and macOS shows the usual warning with **Open Anyway**. `just build-macos` now fails if the signature does not pass `codesign --verify`.
+
 ## [0.1.1] - 2026-11-18
 
 ### Fixed
@@ -97,6 +109,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - A thinking call past the limit of 5 no longer ends the turn. The tool stays available and answers that the thinking steps are used up.
 - `edit_file` needs `old_text`. A call without it is told to use `write_file` to change the whole file.
 
-[Unreleased]: https://github.com/thetaplex/thea/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/thetaplex/thea/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/thetaplex/thea/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/thetaplex/thea/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/thetaplex/thea/releases/tag/v0.1.0

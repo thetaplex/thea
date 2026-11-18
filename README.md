@@ -25,7 +25,7 @@ Thea ships with 2 personas. Each one has its own system prompt, tool set, and st
 
 ## Download
 
-Installers for macOS and Windows are on the [Releases](https://github.com/thetaplex/thea/releases) page. The builds have no code signature, so `macOS Gatekeeper` and `Windows SmartScreen` show a warning on the first launch.
+Thea is in beta. Installers for macOS and Windows are on the [Releases](https://github.com/thetaplex/thea/releases) page. The builds have no code signature from Apple or Microsoft, so `macOS Gatekeeper` and `Windows SmartScreen` show a warning on the first launch. To open Thea the first time, see [Install Thea](how-to/install-thea.md).
 
 This documentation follows the [Diataxis](https://diataxis.fr/) system and Simplified Technical English (`ASD-STE100`). Each file is for 1 topic.
 
@@ -40,6 +40,7 @@ Start here if you are new to Thea. A tutorial takes you through a full workflow 
 
 Use these guides when you want to do a specific task. Each guide gives the steps for 1 goal.
 
+- [Install Thea](how-to/install-thea.md)
 - [Connect an `OpenAI` Provider](how-to/connect-providers.md)
 - [Run a Local Search Engine with `SearXNG`](how-to/local-search-searxng.md)
 - [Pin Project Files and Set Instructions](how-to/project-context.md)
