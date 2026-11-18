@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-18
+
+### Fixed
+
+- Workflow prototype: a written part that has headings is sent back to the model once. If the last try still has headings, code keeps only the text before the first one. The model had written a whole paper as the Abstract, so every heading was in the file twice and the word count stopped at the first `## References`.
+
 ## [0.1.0] - 2026-11-18
 
 ### Added
@@ -91,5 +97,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - A thinking call past the limit of 5 no longer ends the turn. The tool stays available and answers that the thinking steps are used up.
 - `edit_file` needs `old_text`. A call without it is told to use `write_file` to change the whole file.
 
-[Unreleased]: https://github.com/thetaplex/thea/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/thetaplex/thea/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/thetaplex/thea/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/thetaplex/thea/releases/tag/v0.1.0
