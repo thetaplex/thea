@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-19
+
+### Changed
+
+- Saving Settings with **LM Studio** selected starts LM Studio's server on the port in the provider URL when it isn't running. This needs LM Studio's `lms` tool. If the server can't start, Settings stays open and shows why.
+- The **Model** list in Settings fills in for the selected provider, and updates as you change its URL or API key. You no longer need to select **Test Connection** first.
+
+### Fixed
+
+- **Test Connection** for OpenRouter now checks the API key. OpenRouter lists its models without a key, so the test passed while every chat failed with `401 Missing Authentication header`.
+- Settings won't save while a key marked **(Required)** is empty. Closing Settings with an unsaved API key shows a warning instead of discarding the key.
+
 ## [0.2.0] - 2026-11-19
 
 ### Added
@@ -125,7 +137,8 @@ Thea is in beta. The installers have no code signature from Apple or Microsoft. 
 - A thinking call past the limit of 5 no longer ends the turn. The tool stays available and answers that the thinking steps are used up.
 - `edit_file` needs `old_text`. A call without it is told to use `write_file` to change the whole file.
 
-[Unreleased]: https://github.com/thetaplex/thea/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/thetaplex/thea/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/thetaplex/thea/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/thetaplex/thea/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/thetaplex/thea/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/thetaplex/thea/compare/v0.1.0...v0.1.1
