@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # macOS: Tauri on Linux needs webkit2gtk and friends, and releases are built on a Mac.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v10
+      - uses: extractions/setup-just@v4
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: rustup component add clippy
+      - run: pnpm install --frozen-lockfile
+      - run: uv sync --project agent --locked
+      # Tauri checks at compile time that the bundled frontend and Python runtime folders exist.
+      - run: mkdir -p dist agent/dist/python
+      - run: just check
