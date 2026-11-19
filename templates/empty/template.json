@@ -1,0 +1,11 @@
+{
+  "id": "empty",
+  "name": "Empty Project",
+  "description": "A clean folder with a README and .gitignore",
+  "icon": "folder",
+  "default_instructions": "You are working inside a general-purpose project folder. Read existing files before making changes, keep edits focused, and explain any commands you run.",
+  "files": {
+    "README.md": "# {{PROJECT_NAME}}\n\nCreated with Thea.\n",
+    ".gitignore": ".DS_Store\nnode_modules/\n__pycache__/\n.venv/\ndist/\ntarget/\n.env\n"
+  }
+}

@@ -1,70 +1,51 @@
-# Thea Documentation
+# Thea
 
 Thea is a chat app for your desktop, like `ChatGPT`. It also runs as an agent over your own project folder. Each project has a persona, Personal Assistant or Research Assistant, and a chat without a project is a plain chat. The agent reads and edits files, runs commands, searches the web, and keeps a ledger of sources. It works with local models through `Ollama` or any server that speaks the `OpenAI` protocol, and with hosted providers such as `OpenRouter`. Every write and command waits for your approval.
 
-## Personas
+To use Thea, download the macOS or Windows installer from [Releases](https://github.com/thetaplex/thea/releases) and follow [Install Thea](docs/how-to/install-thea.md). Thea is in beta, and the installers are not code-signed.
 
-Thea ships with 2 personas. Each one has its own system prompt, tool set, and starter prompts. You can add your own.
+The rest of this README is for people who build Thea from source. User documentation is in [`docs/`](docs/README.md).
 
-| Persona | Use it for | Tools |
-|---|---|---|
-| Personal Assistant | Tasks, events, `.ics` calendars, memos, notes | Files, docket, `export_calendar`, `web_search`, `fetch_url`, `run_command`, skills |
-| Research Assistant | Sourced briefs, papers, proposals, essays, book research | Files, `web_search`, `fetch_url`, `lookup_paper`, `add_note`, source ledger, citation check |
+## Prerequisites
 
-## Main Features
+- [Rust](https://rustup.rs)
+- [pnpm](https://pnpm.io/installation)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/), for the Python agent
+- [just](https://github.com/casey/just#installation)
+- [Ollama](https://ollama.com) or another model provider
+- [Docker](https://docs.docker.com/get-docker/), only for local web search
+- [Node.js](https://nodejs.org) 24 or later, only for the `npx` `MCP` presets
 
-- **Agent loop for small models**: a `TASK.md` checklist, up to 4 nudges in a round, and up to 6 rounds. Model tiers (small, medium, large) set the prompt budget, the cap on tool output, and the step cap.
-- **Approval gate**: `list_directory`, `read_file`, `search_files`, and `find_files` run inside the project without asking. `write_file`, `edit_file`, `add_source`, and `run_command` show a diff or a command and wait for Approve, Always Allow for Project, or Reject. The tools for files stay inside the project root and do not read `.env*` files.
-- **Research with a source ledger**: `web_search` uses local `SearXNG`, then `Tavily` in keyless mode, then `DuckDuckGo`. `fetch_url` reads pages and `PDF` files. `lookup_paper` queries `OpenAlex`, `Crossref`, and `arXiv`. A draft can cite only keys that `add_source` returned. `check_citations` runs before the agent completes a draft.
-- **Projects and templates**: open a folder or start an empty project. A custom persona can also start from 4 code templates (`React + Vite`, `Python`, `Node.js CLI`, `static HTML`). Add project instructions and pin files into the prompt.
-- **Artifacts and live preview**: view code, read Markdown, and run `HTML` and `SVG` in a sandboxed `iframe`.
-- **Skills and lessons**: 13 bundled skills loaded on demand with `load_capability`. Thea records up to 20 lessons for each persona in `~/.thea/lessons/`. The lessons come from citation checks, ratings, and repeated tool errors.
-- **Model Context Protocol (`MCP`)**: connect `stdio` `MCP` servers. `sequential-thinking` and `playwright` ship as presets.
-- **Any model can use tools**: Thea uses the native tool calls of a model when the provider reports them. A model that cannot call tools natively chats without tools.
-- **Secrets in the keychain**: provider `API` keys live in the macOS Keychain or Windows Credential Manager, not in `~/.thea/*.json`.
+```bash
+just setup
+just run
+```
 
-## Download
+## Commands
 
-Thea is in beta. Installers for macOS and Windows are on the [Releases](https://github.com/thetaplex/thea/releases) page. The builds have no code signature from Apple or Microsoft, so `macOS Gatekeeper` and `Windows SmartScreen` show a warning on the first launch. To open Thea the first time, see [Install Thea](how-to/install-thea.md).
+| Command | What it does |
+|---|---|
+| `just run` | Start the desktop app in development mode |
+| `just check` | Run linters and test suites (`lint` + `test`) |
+| `just build` | Build macOS (`.dmg`) and Windows (`-setup.exe`) installers (`build-macos` + `build-windows`) |
+| `just release` | Build the macOS and Windows installers locally and upload them to the GitHub release for the current version. |
+| `just searxng` | Start `SearXNG` in Docker on `127.0.0.1:8888` |
+| `just eval [model]` | Run the 5-case headless research evaluation against an `Ollama` model (default `gemma4:e4b`) |
 
-This documentation follows the [Diataxis](https://diataxis.fr/) system and Simplified Technical English (`ASD-STE100`). Each file is for 1 topic.
+## Documentation
 
-## Tutorials
+- [User documentation](docs/README.md): tutorials, how-to guides, reference, and explanation for the installed app.
+- [Developer documentation](docs/dev/README.md): evaluation, installers, architecture, and design documents.
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
 
-Start here if you are new to Thea. A tutorial takes you through a full workflow step by step.
+## Known Limitations
 
-- [Tutorial 1: Build and Preview Your First Project](tutorials/first-project.md)
-- [Tutorial 2: Write a Sourced Research Brief](tutorials/research-brief.md)
+- `run_command` asks for approval, but it does not run in a sandbox. Approved commands run with your user permissions.
+- The `iframe` for the `HTML` preview can block network connections, but it does not block image loads. A preview page can still send data through the `URL` of an image.
+- Thea stores the environment variables for `MCP` servers as plain text in `~/.thea/mcp.json`.
+- Builds are not code-signed. `macOS Gatekeeper` and `Windows SmartScreen` warn on first launch.
 
-## How-To Guides
+## License
 
-Use these guides when you want to do a specific task. Each guide gives the steps for 1 goal.
-
-- [Install Thea](how-to/install-thea.md)
-- [Connect an `OpenAI` Provider](how-to/connect-providers.md)
-- [Run a Local Search Engine with `SearXNG`](how-to/local-search-searxng.md)
-- [Pin Project Files and Set Instructions](how-to/project-context.md)
-- [Create and Manage Custom Skills](how-to/custom-skills.md)
-- [Create a Custom Persona](how-to/custom-personas.md)
-- [Connect a `stdio` `MCP` Server](how-to/mcp-servers.md)
-- [Rate Answers and Edit Persona Lessons](how-to/persona-lessons.md)
-
-## Reference
-
-Use the reference when you need exact names, parameters, limits, or file paths.
-
-- [Providers and Personas](reference/providers-and-personas.md)
-- [Agent Tools and Approval Categories](reference/tools-and-approvals.md)
-- [Bundled Skills and Project Templates](reference/skills-and-templates.md)
-- [Model Tiers and Prompt Budgets](reference/tiers-and-budgets.md)
-- [Storage Layout, Database, and Settings](reference/storage-and-settings.md)
-
-## Explanation
-
-Read the explanation to learn about the design of Thea and why it uses these rules.
-
-- [The Agent Loop, `TASK.md`, and Rounds](explanation/agent-loop-and-rounds.md)
-- [Tool-Enforced Research and the Source Ledger](explanation/source-ledger.md)
-- [Thinking Modes and Context Window Sizing](explanation/thinking-and-context.md)
-- [Self-Improvement with `Reflexion` Lessons](explanation/reflexion-lessons.md)
-- [Security Boundaries and Known Limits](explanation/security-model.md)
+Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

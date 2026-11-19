@@ -1,0 +1,14 @@
+{
+  "id": "node-cli",
+  "name": "Node.js TypeScript CLI",
+  "description": "Command-line tool in Node.js with TypeScript and tsx",
+  "icon": "terminal",
+  "default_instructions": "This is a Node.js CLI project using TypeScript. Run with `npm start` (uses tsx) or build with `npm run build`.",
+  "files": {
+    "package.json": "{\n  \"name\": \"{{PROJECT_SLUG}}\",\n  \"version\": \"0.1.0\",\n  \"type\": \"module\",\n  \"bin\": {\n    \"{{PROJECT_SLUG}}\": \"./dist/index.js\"\n  },\n  \"scripts\": {\n    \"start\": \"tsx src/index.ts\",\n    \"build\": \"tsc\"\n  },\n  \"devDependencies\": {\n    \"@types/node\": \"^22.0.0\",\n    \"tsx\": \"^4.19.0\",\n    \"typescript\": \"^5.7.0\"\n  }\n}\n",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2022\",\n    \"module\": \"NodeNext\",\n    \"moduleResolution\": \"NodeNext\",\n    \"outDir\": \"dist\",\n    \"rootDir\": \"src\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true\n  },\n  \"include\": [\"src\"]\n}\n",
+    "src/index.ts": "#!/usr/bin/env node\n\nconst args = process.argv.slice(2);\nconst name = args[0] ?? 'world';\nconsole.log(`Hello, ${name} from {{PROJECT_NAME}}!`);\n",
+    "README.md": "# {{PROJECT_NAME}}\n\n```bash\nnpm install\nnpm start -- Alice\n```\n",
+    ".gitignore": "node_modules/\ndist/\n.DS_Store\n"
+  }
+}

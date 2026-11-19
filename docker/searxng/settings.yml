@@ -1,0 +1,21 @@
+# SearXNG settings for Thea's local web search.
+# Everything not listed here comes from the image defaults.
+use_default_settings: true
+
+general:
+  # Wikipedia, Wikidata and OpenStreetMap refuse to load without a contact URL.
+  contact_url: https://github.com/thetaplex/thea
+
+server:
+  # The secret comes from the SEARXNG_SECRET environment variable (see justfile).
+  secret_key: "set-by-SEARXNG_SECRET-env"
+  # The rate limiter needs Valkey and blocks API clients; Thea is the only client.
+  limiter: false
+  image_proxy: false
+
+search:
+  # Thea reads the JSON API; html stays on so you can open http://127.0.0.1:8888 yourself.
+  formats:
+    - html
+    - json
+  safe_search: 0

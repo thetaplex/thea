@@ -1,0 +1,14 @@
+{
+  "id": "schedule-kickoff",
+  "persona": "personal-assistant",
+  "min_sources": 2,
+  "prompt": "Schedule a 1-hour architecture review on 2026-11-25 at 10:00 in Conference Room A, add a high-priority preparation task due 2026-11-24 to the Docket, export the .ics invite, and draft a meeting invitation memo at docket/drafts/arch-review-invite.md referencing the Docket keys.",
+  "deliverable": {
+    "glob": "docket/drafts/arch-review-invite.md"
+  },
+  "event": {
+    "start": "20261125T100000Z",
+    "end": "20261125T110000Z",
+    "location": "Conference Room A"
+  }
+}

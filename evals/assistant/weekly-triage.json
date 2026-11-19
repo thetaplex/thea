@@ -1,0 +1,17 @@
+{
+  "id": "weekly-triage",
+  "persona": "personal-assistant",
+  "min_sources": 3,
+  "seed_files": {
+    "inbox.md": "# Inbox Notes\n- Urgent: renew TLS certificate for api.thetaplex.app before 2026-11-19\n- Kickoff meeting with design team on 2026-11-20 at 14:00 to 15:00 in Room 3B\n- Decision: we selected SQLite over Postgres for the local desktop store\n- Send Q4 budget spreadsheet to finance by 2026-11-24\n"
+  },
+  "prompt": "Read inbox.md, triage all items into the Docket, export the kickoff meeting to a calendar .ics file, and write a prioritized weekly action plan at docket/plans/weekly-plan.md. Check style before finishing.",
+  "deliverable": {
+    "glob": "docket/plans/weekly-plan.md"
+  },
+  "event": {
+    "start": "20261120T140000Z",
+    "end": "20261120T150000Z",
+    "location": "Room 3B"
+  }
+}

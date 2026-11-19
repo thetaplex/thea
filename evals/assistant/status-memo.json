@@ -1,0 +1,12 @@
+{
+  "id": "status-memo",
+  "persona": "personal-assistant",
+  "min_sources": 2,
+  "seed_files": {
+    "notes.md": "# Sprint Notes\n- Completed desktop installer build for macOS and Windows\n- Next: run release smoke test on Windows 11 VM by 2026-11-18\n- Decision: ship NSIS installer for Windows Cross-Compile\n"
+  },
+  "prompt": "Read notes.md, record the open task and decision in the Docket, and write a concise executive status memo at docket/drafts/status-memo.md that references the Docket keys.",
+  "deliverable": {
+    "glob": "docket/drafts/status-memo.md"
+  }
+}

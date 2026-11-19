@@ -1,0 +1,9 @@
+{
+  "id": "brief-heat-pumps",
+  "min_sources": 3,
+  "prompt": "Write a one-page brief for a city council member on whether air-source heat pumps work in cold climates below -15 C.",
+  "deliverable": {
+    "glob": "research/drafts/*-brief.md",
+    "words": [500, 700]
+  }
+}

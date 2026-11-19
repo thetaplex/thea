@@ -1,0 +1,8 @@
+{
+  "id": "citation-rates",
+  "prompt": "How often do large language models fabricate citations? Collect the published measurements and write a short research paper.",
+  "deliverable": {
+    "glob": "research/drafts/*-paper.md",
+    "words": [1500, 2500]
+  }
+}

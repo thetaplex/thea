@@ -1,0 +1,64 @@
+{
+  "type": "turn",
+  "chat_id": "c1",
+  "persona": {
+    "id": "p1",
+    "name": "Researcher",
+    "tagline": "Finds things out",
+    "system_prompt": "You are a careful researcher.",
+    "tool_ids": ["read_file", "web_search"],
+    "skill_ids": ["report"],
+    "mcp_server_ids": ["m1"],
+    "builtin": true,
+    "native_thinking": false,
+    "max_steps": 6
+  },
+  "provider": {
+    "protocol": "openai",
+    "base_url": "http://localhost:11434/v1",
+    "api_key": "ollama",
+    "model": "gemma4:e4b"
+  },
+  "small_model": true,
+  "workspace": {
+    "id": "w1",
+    "name": "Notes",
+    "root_path": "/tmp/notes",
+    "instructions": "Keep it short.",
+    "is_chat": false
+  },
+  "knowledge_files": ["/tmp/notes/a.md"],
+  "skill_dirs": ["/tmp/skills"],
+  "skills": ["report"],
+  "mcp_servers": [
+    {
+      "id": "m1",
+      "name": "fs",
+      "command": "npx",
+      "args": ["-y", "server"],
+      "env": { "K": "V" },
+      "enabled": true,
+      "auto_approve": false
+    }
+  ],
+  "settings": { "searxng_url": "http://127.0.0.1:8888" },
+  "lessons": ["Prefer primary sources"],
+  "history": [
+    {
+      "role": "user",
+      "content": "hi",
+      "tool_calls_json": null,
+      "tool_call_id": null,
+      "tool_name": null,
+      "model_message_json": null
+    },
+    {
+      "role": "tool",
+      "content": "ok",
+      "tool_calls_json": null,
+      "tool_call_id": "t1",
+      "tool_name": "read_file",
+      "model_message_json": "{}"
+    }
+  ]
+}

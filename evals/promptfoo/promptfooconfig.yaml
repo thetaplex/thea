@@ -1,0 +1,36 @@
+# Headless Thea agent evals. Run with `just eval [model] [suite]`.
+# Each case runs one agent turn (provider.py), then the assertions read its scores (score.py).
+description: Thea agent turns
+prompts: ["{{prompt}}"]
+providers:
+  - id: file://provider.py
+    label: "{{ env.THEA_EVAL_MODEL }}"
+    config:
+      model: "{{ env.THEA_EVAL_MODEL }}"
+      base_url: http://127.0.0.1:11434
+      # ms; promptfoo's default stopped long turns at 300 s. Just above provider.py's own 900 s limit.
+      timeout: 960000
+tests: file://cases.py:generate_tests
+defaultTest:
+  assert:
+    - type: python
+      metric: no_error
+      value: file://score.py:no_error
+    - type: python
+      metric: complete
+      value: file://score.py:complete
+    - type: python
+      metric: deliverable
+      value: file://score.py:deliverable
+    - type: python
+      metric: citations
+      value: file://score.py:citations
+    - type: python
+      metric: sources
+      value: file://score.py:sources
+    - type: python
+      metric: honest_report
+      value: file://score.py:honest_report
+    - type: python
+      metric: event
+      value: file://score.py:event

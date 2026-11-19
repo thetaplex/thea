@@ -1,0 +1,22 @@
+node_modules
+dist
+src-tauri/target
+src-tauri/gen/schemas
+.DS_Store
+*.log
+.serena/
+.superpowers/
+.claude/
+
+# Eval runs: generated, large, and they hold local paths
+evals/results/*
+!evals/results/.gitkeep
+
+# Python agent sidecar
+agent/.venv
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Bundled Python runtime (just bundle-agent)
+agent/dist/
