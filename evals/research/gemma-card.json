@@ -1,0 +1,9 @@
+{
+  "id": "gemma-card",
+  "prompt": "According to Google's official model documentation, what context length and capabilities do the Gemma 3 models have? Write a short research paper.",
+  "min_sources": 1,
+  "deliverable": {
+    "glob": "research/drafts/*-paper.md",
+    "words": [1500, 2500]
+  }
+}

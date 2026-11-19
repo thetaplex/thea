@@ -1,0 +1,14 @@
+{
+  "id": "python-app",
+  "name": "Python Application",
+  "description": "Python project with pyproject.toml, src layout, and tests",
+  "icon": "terminal",
+  "default_instructions": "This is a Python project using pyproject.toml. Prefer standard library or lightweight dependencies, type hints, and pytest for tests. Run `python3 -m venv .venv` or `uv sync` to set up the environment.",
+  "files": {
+    "pyproject.toml": "[project]\nname = \"{{PROJECT_SLUG}}\"\nversion = \"0.1.0\"\ndescription = \"{{PROJECT_NAME}}\"\nreadme = \"README.md\"\nrequires-python = \">=3.10\"\ndependencies = []\n\n[project.optional-dependencies]\ndev = [\"pytest>=8.0\"]\n",
+    "README.md": "# {{PROJECT_NAME}}\n\n## Quickstart\n\n```bash\npython3 -m venv .venv\nsource .venv/bin/activate  # On Windows: .venv\\Scripts\\activate\npython main.py\n```\n",
+    "main.py": "def greet(name: str = \"World\") -> str:\n    return f\"Hello, {name}! Welcome to {{PROJECT_NAME}}.\"\n\n\nif __name__ == \"__main__\":\n    print(greet())\n",
+    "tests/test_main.py": "from main import greet\n\n\ndef test_greet():\n    assert \"Hello, Alice!\" in greet(\"Alice\")\n",
+    ".gitignore": "__pycache__/\n*.py[cod]\n.venv/\n.pytest_cache/\ndist/\n*.egg-info/\n.DS_Store\n"
+  }
+}

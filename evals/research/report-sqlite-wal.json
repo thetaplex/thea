@@ -1,0 +1,8 @@
+{
+  "id": "report-sqlite-wal",
+  "min_sources": 4,
+  "prompt": "Write a short technical report on SQLite write-ahead logging (WAL) mode for a desktop app team: how it works, its limits, and whether we should turn it on.",
+  "deliverable": {
+    "glob": "research/drafts/*-report.md"
+  }
+}

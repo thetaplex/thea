@@ -1,0 +1,8 @@
+{
+  "id": "reflexion",
+  "prompt": "What does the Reflexion paper by Shinn and others (2023) propose, and what results does it report on HumanEval? Write a short research paper.",
+  "deliverable": {
+    "glob": "research/drafts/*-paper.md",
+    "words": [1500, 2500]
+  }
+}

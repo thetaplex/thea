@@ -1,0 +1,8 @@
+{
+  "id": "openalex-vs-crossref",
+  "prompt": "Compare OpenAlex and Crossref as sources of scholarly metadata, using their official documentation. Write a short research paper.",
+  "deliverable": {
+    "glob": "research/drafts/*-paper.md",
+    "words": [1500, 2500]
+  }
+}

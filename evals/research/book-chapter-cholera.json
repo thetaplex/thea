@@ -1,0 +1,14 @@
+{
+  "id": "book-chapter-cholera",
+  "min_sources": 3,
+  "seed_files": {
+    "research/book/brief.md": "# Book brief\n- Non-fiction, narrative history for general readers.\n- Premise: how one doctor's map of a London cholera outbreak changed public health.\n- Voice: plain, vivid, present the people as real characters. Short paragraphs.\n- Chapter length: 1500 to 2000 words.\n",
+    "research/book/chapters/01-broad-street.md": "# 01 The pump on Broad Street\n## Questions\n- When and where did the outbreak start?\n- How many people died?\n- What did John Snow do?\n## Learnings\n- [S1] The outbreak began on 31 August 1854 in Soho, London (Snow 1855, part 3).\n- [S1] Snow marked each death on a street map and found that most were close to the Broad Street pump (Snow 1855, map 1).\n- [S2] The outbreak killed 616 people (section Outbreak).\n- [S2] The parish board removed the pump handle on 8 September 1854 at Snow's request (section Snow's work).\n- [S3] The curate Henry Whitehead first doubted Snow, then traced the first case to a baby at 40 Broad Street (page Whitehead).\n- [S3] A cesspool near the pump leaked into the well (page Whitehead).\n## Still open\n",
+    "research/sources.json": "[\n {\n  \"key\": \"S1\",\n  \"kind\": \"web\",\n  \"title\": \"On the Mode of Communication of Cholera\",\n  \"authors\": [\n   \"John Snow\"\n  ],\n  \"year\": 1855,\n  \"venue\": null,\n  \"doi\": null,\n  \"url\": \"https://archive.org/details/onmodeofcommunic00snow\",\n  \"abstract\": null,\n  \"note\": null,\n  \"relevance\": 5,\n  \"added_at\": \"2026-11-16T00:00:00Z\"\n },\n {\n  \"key\": \"S2\",\n  \"kind\": \"web\",\n  \"title\": \"1854 Broad Street cholera outbreak\",\n  \"authors\": [],\n  \"year\": null,\n  \"venue\": null,\n  \"doi\": null,\n  \"url\": \"https://en.wikipedia.org/wiki/1854_Broad_Street_cholera_outbreak\",\n  \"abstract\": null,\n  \"note\": null,\n  \"relevance\": 3,\n  \"added_at\": \"2026-11-16T00:00:00Z\"\n },\n {\n  \"key\": \"S3\",\n  \"kind\": \"web\",\n  \"title\": \"John Snow site: Henry Whitehead\",\n  \"authors\": [],\n  \"year\": null,\n  \"venue\": \"UCLA Department of Epidemiology\",\n  \"doi\": null,\n  \"url\": \"https://www.ph.ucla.edu/epi/snow/whitehead.html\",\n  \"abstract\": null,\n  \"note\": null,\n  \"relevance\": 4,\n  \"added_at\": \"2026-11-16T00:00:00Z\"\n }\n]"
+  },
+  "prompt": "Draft chapter 1 of my book from the research in research/book/chapters/01-broad-street.md.",
+  "deliverable": {
+    "glob": "research/drafts/*chapter*.md",
+    "words": [1500, 2000]
+  }
+}

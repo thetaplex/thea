@@ -1,0 +1,12 @@
+{
+  "id": "static-html",
+  "name": "Interactive HTML / Canvas App",
+  "description": "Zero-build HTML, CSS, and vanilla JavaScript app ready for live preview",
+  "icon": "globe",
+  "default_instructions": "This is a zero-build static HTML/CSS/JS project. Keep everything self-contained so index.html can be previewed directly in Thea's Artifacts & Preview pane.",
+  "files": {
+    "index.html": "<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n  <title>{{PROJECT_NAME}}</title>\n  <link rel=\"stylesheet\" href=\"style.css\" />\n</head>\n<body>\n  <main class=\"card\">\n    <h1>{{PROJECT_NAME}}</h1>\n    <p>A self-contained HTML + CSS + JS starter.</p>\n    <div class=\"row\">\n      <button id=\"btn\">Click me (<span id=\"count\">0</span>)</button>\n    </div>\n  </main>\n  <script src=\"app.js\"></script>\n</body>\n</html>\n",
+    "style.css": "* { box-sizing: border-box; }\nbody {\n  margin: 0;\n  min-height: 100vh;\n  display: grid;\n  place-items: center;\n  font-family: system-ui, -apple-system, sans-serif;\n  background: radial-gradient(circle at top, #1e293b, #0f172a);\n  color: #f8fafc;\n}\n.card {\n  background: rgba(30, 41, 59, 0.8);\n  border: 1px solid #334155;\n  border-radius: 16px;\n  padding: 2rem 2.5rem;\n  text-align: center;\n  box-shadow: 0 20px 50px rgba(0,0,0,0.4);\n}\nbutton {\n  background: #6366f1;\n  color: white;\n  border: none;\n  border-radius: 8px;\n  padding: 0.65rem 1.25rem;\n  font-size: 1rem;\n  cursor: pointer;\n}\nbutton:hover { background: #4f46e5; }\n",
+    "app.js": "let count = 0;\nconst btn = document.getElementById('btn');\nconst span = document.getElementById('count');\nbtn?.addEventListener('click', () => {\n  count += 1;\n  if (span) span.textContent = String(count);\n});\n"
+  }
+}

@@ -1,0 +1,36 @@
+[project]
+name = "thea-agent"
+version = "0.3.0"
+description = "Thea agent sidecar on pydantic-ai"
+readme = "README.md"
+authors = [
+    { name = "haraprasadj", email = "5363831+haraprasadj@users.noreply.github.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic-ai-harness[skills]==0.68.0",
+    "pydantic-ai-slim[mcp,openai]==2.68.0",
+    "pypdf>=7.1.0",
+]
+
+[project.scripts]
+thea-agent = "thea_agent.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.5.0",
+    "ruff>=0.17.5",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff.lint.isort]
+known-first-party = ["thea_agent"]
