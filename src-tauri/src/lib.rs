@@ -629,7 +629,8 @@ pub fn run() {
         .manage(print::PrintPages::default())
         .register_uri_scheme_protocol(print::SCHEME, print::serve)
         .setup(|app| {
-            // Track tauri.conf.json and icon.png so rustc always re-expands tauri::generate_context!()
+            db::secrets::load(); // API keys from ~/.thea/credentials, once at startup
+                                 // Track tauri.conf.json and icon.png so rustc always re-expands tauri::generate_context!()
             let _ = include_str!("../tauri.conf.json");
             let _ = include_bytes!("../icons/icon.png");
             if let Some(icon) = app.default_window_icon().cloned() {

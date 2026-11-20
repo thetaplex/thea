@@ -49,7 +49,9 @@ FS_TOOLS = {
     "search": ("search_files", "find_files"),
 }
 
-SECRET_FILES = ("**/.env*",)  # neither readable nor writable, as in the Rust tools
+# Neither readable nor writable. `.thea/credentials` holds the API keys and is inside the
+# workspace when a project is opened at the home folder.
+SECRET_FILES = ("**/.env*", "**/.thea/credentials")
 
 READ_ONLY = (
     *FileSystem.read_only_patterns,

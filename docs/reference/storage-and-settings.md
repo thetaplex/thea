@@ -1,12 +1,13 @@
 # Storage Layout, Files, and Settings
 
-By default, it stores the global state in `~/.thea/`. Set the `THEA_HOME` environment variable to use another directory. When `THEA_HOME` is not empty, it uses a mock keychain in memory instead of the keychain of the operating system.
+By default, it stores the global state in `~/.thea/`. Set the `THEA_HOME` environment variable to use another directory. The `API` keys are in the `credentials` file in that directory.
 
 ## Global Files (`~/.thea/`)
 
 | Path | Format | Contents |
 |---|---|---|
 | `~/.thea/thea.sqlite3` | SQLite (`WAL`) | Tables: `projects`, `project_knowledge`, `chats`, `messages`, `settings`, `skill_states`, `personas`, `mcp_servers`. |
+| `~/.thea/credentials` | INI | `API` keys, one `[provider-id]` section each with an `api_key = ...` line, like `~/.aws/credentials`. Mode `600` on macOS and Linux. You can edit it by hand. Thea changes only `api_key` lines and keeps comments and other lines. |
 | `~/.thea/settings.json` | JSON | Mirror of `AppSettings` with `API` keys removed. |
 | `~/.thea/providers.json` | JSON | List of `ProviderEntry` records with `API` keys removed. |
 | `~/.thea/skills.json` | JSON | Global custom skills (`SkillInfo` array). |

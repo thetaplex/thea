@@ -2,7 +2,7 @@
 
 ## Built-In Model Providers
 
-It seeds 6 of the providers in `~/.thea/providers.json`. It stores `API` keys in the keychain of the operating system under the service name `app.thetaplex.thea`.
+It seeds 6 of the providers in `~/.thea/providers.json`. It stores `API` keys in `~/.thea/credentials`, in a section named after the provider ID, such as `[openrouter]`.
 
 | ID | Name | Protocol | Default Base URL |
 |---|---|---|---|
