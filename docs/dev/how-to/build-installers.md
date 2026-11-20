@@ -21,17 +21,17 @@
 
 ## Publish a Release
 
-Releases live in the public repository `thetaplex/thea`. Your Mac builds both the macOS and Windows installers, and copies the user docs there before it makes the tag.
+The `Release` workflow in GitHub Actions builds the macOS installer on a macOS runner and the Windows installer on a Windows runner, then publishes them.
 
-1. Update the user docs in `docs/` and move the `[Unreleased]` items in `CHANGELOG.md` under the new version. The docs and the notes of the release come from `main` as it is when you run the release.
+1. Update the user docs in `docs/` and move the `[Unreleased]` items in `CHANGELOG.md` under the new version. The release notes come from that section.
 2. Set the same version in `package.json`, `src-tauri/Cargo.toml`, `src-tauri/tauri.conf.json`, and `agent/pyproject.toml`.
 3. Run `just check` and merge the changes to `main`.
 4. On `main`, up to date with `origin` and with no local changes, run:
    ```bash
    just release
    ```
-   This command stops if `main` has local changes or is not the same as `origin/main`. Then it builds the `.dmg` and `-setup.exe` installers, copies `docs/` (without `docs/dev/`), `CHANGELOG.md`, and `LICENSE` to `thetaplex/thea`, pushes the tag `v<version>` to this repository, creates the release in `thetaplex/thea` if it does not exist, and uploads both installers.
+   This command stops if `main` has local changes or is not the same as `origin/main`. Then it pushes the tag `v<version>`. The tag starts the `Release` workflow, which builds the `.dmg` and `-setup.exe` installers, creates the release if it does not exist, and uploads both installers.
 
-The docs live in this repository, so they need no separate publish step.
+To build the installers without publishing, run the `Release` workflow by hand from the Actions tab. The installers are attached to the run as artifacts.
 
 The builds have no code signature. `macOS Gatekeeper` and `Windows SmartScreen` show a warning on the first launch.
