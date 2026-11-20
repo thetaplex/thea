@@ -10,7 +10,7 @@ Use these steps to connect `LM Studio`, `llama.cpp`, `vLLM`, `OpenRouter`, `Open
    - Type the endpoint URL in **Base URL**, such as `http://127.0.0.1:1234/v1`.
    - Click **Save Provider**.
 4. Type or select the model identifier in **Model**.
-5. If the server needs an `API` key, type it in **API Key**. Thea saves the key in your operating system keychain.
+5. If the server needs an `API` key, type it in **API Key**. Thea saves the key in `~/.thea/credentials`.
 6. Click **Test Connection** to check that the endpoint answers and lists models.
 7. Click **Save Settings**.
 

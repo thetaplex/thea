@@ -234,44 +234,146 @@ pub fn builtin_providers() -> Vec<ProviderEntry> {
     ]
 }
 
-const KEYCHAIN_SERVICE: &str = "app.thetaplex.thea";
-
-/// API keys live in the OS keychain (macOS Keychain / Windows Credential Manager /
-/// Secret Service on Linux), one entry per provider id. Nothing on disk holds them.
+/// API keys live in `~/.thea/credentials`, an INI file in the style of
+/// `~/.aws/credentials`: one `[provider-id]` section with an `api_key = ...` line.
+/// The user owns the file and may edit it; Thea only rewrites `api_key` lines and
+/// keeps everything else, comments included. It is created with mode 0600.
 pub mod secrets {
-    use super::KEYCHAIN_SERVICE;
-    use anyhow::Result;
-    use keyring::{Entry, Error};
+    use anyhow::{bail, Result};
+    use std::collections::HashMap;
+    use std::io::Write;
+    use std::path::PathBuf;
+    use std::sync::{Mutex, OnceLock};
 
-    /// A non-empty `THEA_HOME` means "isolated home, no OS keychain": tests and the
-    /// eval point it at a tempdir, so keys go to keyring's in-process mock store
-    /// instead of the developer's real keychain. Unit tests always use the mock.
-    fn entry(provider_id: &str) -> keyring::Result<Entry> {
-        if cfg!(test) || std::env::var_os("THEA_HOME").is_some_and(|v| !v.is_empty()) {
-            static MOCK: std::sync::Once = std::sync::Once::new();
-            MOCK.call_once(|| {
-                keyring::set_default_credential_builder(keyring::mock::default_credential_builder())
-            });
+    const HEADER: &str = "# Thea API keys: one [provider-id] section each, with an api_key line.";
+
+    fn path() -> PathBuf {
+        super::thea_home_dir().join("credentials")
+    }
+
+    fn section(line: &str) -> Option<&str> {
+        line.trim()
+            .strip_prefix('[')?
+            .strip_suffix(']')
+            .map(str::trim)
+    }
+
+    fn api_key_value(line: &str) -> Option<&str> {
+        let (k, v) = line.split_once('=')?;
+        (k.trim() == "api_key").then(|| v.trim())
+    }
+
+    /// First `api_key` per section wins. `lines()` also strips `\r`, so files edited on
+    /// Windows read the same.
+    fn parse(text: &str) -> HashMap<String, String> {
+        let mut keys = HashMap::new();
+        let mut current = None;
+        for line in text.lines() {
+            if let Some(s) = section(line) {
+                current = Some(s);
+            } else if let (Some(id), Some(v)) = (current, api_key_value(line)) {
+                keys.entry(id.to_string()).or_insert_with(|| v.to_string());
+            }
         }
-        Entry::new(KEYCHAIN_SERVICE, provider_id)
+        keys
+    }
+
+    /// Keys read from the file, with the path they came from: a new `THEA_HOME`
+    /// (tests, eval) reloads.
+    type Cache = Option<(PathBuf, HashMap<String, String>)>;
+
+    fn cache() -> std::sync::MutexGuard<'static, Cache> {
+        static CACHE: OnceLock<Mutex<Cache>> = OnceLock::new();
+        CACHE
+            .get_or_init(Default::default)
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+    }
+
+    /// Reads `credentials` into memory. The app calls it at startup; `get` calls it if the
+    /// home directory changed. Edits made by hand while the app runs show after a restart.
+    pub fn load() {
+        let path = path();
+        let keys = parse(&std::fs::read_to_string(&path).unwrap_or_default());
+        *cache() = Some((path, keys));
     }
 
     pub fn get(provider_id: &str) -> String {
-        entry(provider_id)
-            .and_then(|e| e.get_password())
+        if !cache().as_ref().is_some_and(|(p, _)| *p == path()) {
+            load();
+        }
+        cache()
+            .as_ref()
+            .and_then(|(_, keys)| keys.get(provider_id).cloned())
             .unwrap_or_default()
     }
 
+    /// Writes the key to the file, then reloads the cache from what was written. Only
+    /// `api_key` lines change; comments and other lines stay as the user wrote them.
     pub fn set(provider_id: &str, api_key: &str) -> Result<()> {
-        let entry = entry(provider_id)?;
-        if api_key.trim().is_empty() {
-            match entry.delete_credential() {
-                Ok(()) | Err(Error::NoEntry) => Ok(()),
-                Err(e) => Err(e.into()),
-            }
-        } else {
-            Ok(entry.set_password(api_key.trim())?)
+        let key = api_key.trim();
+        // Keys and ids come from the settings UI; a line break would inject entries.
+        if key.contains(['\n', '\r']) || provider_id.contains(['\n', '\r', '[', ']']) {
+            bail!("API key or provider id contains a line break or bracket");
         }
+        // Held across read, edit and write: two saves at once must not drop each other's key.
+        static WRITE: Mutex<()> = Mutex::new(());
+        let _w = WRITE.lock().unwrap_or_else(|e| e.into_inner());
+        if get(provider_id) == key {
+            return Ok(()); // every settings save re-sets every key
+        }
+        // Edit what is on disk now, not the cache, so hand edits since startup survive.
+        let old = std::fs::read_to_string(path()).unwrap_or_default();
+        let mut out: Vec<String> = Vec::new();
+        let (mut current, mut done) = (None, false);
+        for line in old.lines() {
+            if let Some(s) = section(line) {
+                current = Some(s);
+                out.push(line.to_string());
+                if s == provider_id && !done {
+                    done = true;
+                    if !key.is_empty() {
+                        out.push(format!("api_key = {key}"));
+                    }
+                }
+            } else if !(current == Some(provider_id) && api_key_value(line).is_some()) {
+                out.push(line.to_string());
+            }
+        }
+        if !done && !key.is_empty() {
+            if out.is_empty() {
+                out.push(HEADER.to_string());
+            }
+            if out.last().is_some_and(|l| !l.trim().is_empty()) {
+                out.push(String::new());
+            }
+            out.push(format!("[{provider_id}]"));
+            out.push(format!("api_key = {key}"));
+        }
+        let mut new = out.join("\n");
+        new.push('\n');
+        write(&new)?;
+        *cache() = Some((path(), parse(&new)));
+        Ok(())
+    }
+
+    /// Writes through a temp file and a rename, so a crash never leaves a half-written
+    /// file. `rename` replaces the target on Windows too. Mode 0600 on Unix; on Windows
+    /// the file inherits the user-only ACL of the profile folder.
+    fn write(text: &str) -> Result<()> {
+        let path = path();
+        let tmp = path.with_extension("tmp");
+        let _ = std::fs::remove_file(&tmp);
+        let mut opts = std::fs::OpenOptions::new();
+        opts.write(true).create_new(true);
+        #[cfg(unix)]
+        std::os::unix::fs::OpenOptionsExt::mode(&mut opts, 0o600);
+        let mut f = opts.open(&tmp)?;
+        f.write_all(text.as_bytes())?;
+        f.sync_all()?;
+        drop(f);
+        std::fs::rename(&tmp, &path)?;
+        Ok(())
     }
 }
 
@@ -280,17 +382,8 @@ pub fn load_providers_from_disk() -> Vec<ProviderEntry> {
     if let Ok(raw) = std::fs::read_to_string(&path) {
         if let Ok(mut list) = serde_json::from_str::<Vec<ProviderEntry>>(&raw) {
             if !list.is_empty() {
-                // Migrate any plaintext keys written by older builds into the keychain.
-                let had_plaintext = list.iter().any(|p| !p.api_key.trim().is_empty());
                 for p in &mut list {
-                    if p.api_key.trim().is_empty() {
-                        p.api_key = secrets::get(&p.id);
-                    } else {
-                        let _ = secrets::set(&p.id, &p.api_key);
-                    }
-                }
-                if had_plaintext {
-                    let _ = save_providers_to_disk(&list);
+                    p.api_key = secrets::get(&p.id);
                 }
                 return list;
             }
@@ -301,15 +394,13 @@ pub fn load_providers_from_disk() -> Vec<ProviderEntry> {
     defaults
 }
 
-/// Writes keys to the keychain and the rest to `providers.json` with keys blanked.
+/// Writes keys to `~/.thea/credentials` and the rest to `providers.json` with keys blanked.
 pub fn save_providers_to_disk(providers: &[ProviderEntry]) -> Result<()> {
     let mut on_disk = providers.to_vec();
     for p in &mut on_disk {
-        // Never delete an entry that was never set: an empty key with nothing
-        // stored is a no-op, so saving defaults does not touch the keychain.
-        if !p.api_key.trim().is_empty() || !secrets::get(&p.id).is_empty() {
-            secrets::set(&p.id, &p.api_key)?;
-        }
+        // `set` leaves the file alone when the key is unchanged, so saving settings
+        // (even picking a model) does not rewrite it.
+        secrets::set(&p.id, &p.api_key)?;
         p.api_key.clear();
     }
     let path = thea_home_dir().join("providers.json");
@@ -1126,14 +1217,6 @@ impl Database {
             }
         };
 
-        // Legacy builds stored the OpenAI key in settings.json; move it to the keychain once.
-        if !settings.openai_api_key.trim().is_empty() {
-            let _ = secrets::set("openai", &settings.openai_api_key);
-            settings.openai_api_key.clear();
-            if let Ok(json) = serde_json::to_string_pretty(&settings) {
-                let _ = std::fs::write(&settings_path, json);
-            }
-        }
         settings.openai_api_key = secrets::get("openai");
 
         // Sync provider_configs with ~/.thea/providers.json
@@ -1174,8 +1257,8 @@ impl Database {
     pub fn write_settings(&self, settings: &AppSettings) -> Result<()> {
         let settings_path = thea_home_dir().join("settings.json");
         let mut on_disk = settings.clone();
-        // Empty means "nothing to migrate", not "delete": key removal goes through
-        // save_provider, and settings.json never carries a key after migration.
+        // The Settings form sends the OpenAI key here. Empty is not "delete": clearing it
+        // also clears provider_configs["openai"], which save_providers_to_disk applies.
         if !on_disk.openai_api_key.is_empty() {
             secrets::set("openai", &on_disk.openai_api_key)?;
         }
@@ -1196,8 +1279,8 @@ impl Database {
                 entry.api_key = cfg.api_key.clone();
             }
         }
-        let _ = save_providers_to_disk(&providers);
-        Ok(())
+        // Keys live only in the credentials file: a failed write must reach the UI.
+        save_providers_to_disk(&providers)
     }
 
     pub fn list_projects(&self) -> Result<Vec<Project>> {
@@ -1765,7 +1848,7 @@ mod save_settings_tests {
     }
 
     #[test]
-    fn provider_defaults_round_trip_under_thea_home_without_os_keychain() {
+    fn provider_defaults_round_trip_under_thea_home_keeps_keys_out_of_json() {
         let _g = test_env_lock();
         let dir = tempfile::tempdir().unwrap();
         std::env::set_var("THEA_HOME", dir.path());
@@ -1908,5 +1991,86 @@ mod chat_workspace_tests {
         assert!(sentinel.exists());
         db.delete_chat(&chat.id).unwrap();
         assert!(!root.exists());
+    }
+}
+
+#[cfg(test)]
+mod credentials_tests {
+    use super::*;
+
+    #[test]
+    fn credentials_round_trip_and_keep_user_edits() {
+        let _g = test_env_lock();
+        let dir = tempfile::tempdir().unwrap();
+        std::env::set_var("THEA_HOME", dir.path());
+        let file = dir.path().join("credentials");
+        std::fs::write(
+            &file,
+            "# mine\n[openrouter]\nregion = eu\napi_key = old\n\n[groq]\napi_key = g\n",
+        )
+        .unwrap();
+
+        secrets::set("openrouter", " new ").unwrap();
+        secrets::set("ollama", "o").unwrap();
+        assert_eq!(secrets::get("openrouter"), "new");
+        assert_eq!(secrets::get("groq"), "g");
+        assert_eq!(secrets::get("ollama"), "o");
+        let text = std::fs::read_to_string(&file).unwrap();
+        assert!(text.starts_with("# mine\n") && text.contains("region = eu"));
+        assert!(!text.contains("old"));
+
+        secrets::set("groq", "").unwrap();
+        assert_eq!(secrets::get("groq"), "");
+        assert!(secrets::set("x", "a\n[evil]").is_err());
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let mode = std::fs::metadata(&file).unwrap().permissions().mode();
+            assert_eq!(mode & 0o777, 0o600);
+        }
+    }
+
+    #[test]
+    fn crlf_file_and_hand_edits_after_startup() {
+        let _g = test_env_lock();
+        let dir = tempfile::tempdir().unwrap();
+        std::env::set_var("THEA_HOME", dir.path());
+        let file = dir.path().join("credentials");
+        std::fs::write(&file, "[a]\r\napi_key = x\r\n").unwrap();
+        secrets::load();
+        assert_eq!(secrets::get("a"), "x");
+        // Edited by hand after startup: not visible yet, but a save must not drop it.
+        std::fs::write(&file, "[a]\r\napi_key = x\r\n[b]\r\napi_key = y\r\n").unwrap();
+        assert_eq!(secrets::get("b"), "");
+        secrets::set("a", "z").unwrap();
+        assert_eq!(secrets::get("a"), "z");
+        assert_eq!(secrets::get("b"), "y");
+    }
+
+    #[test]
+    fn concurrent_saves_keep_every_key() {
+        let _g = test_env_lock();
+        let dir = tempfile::tempdir().unwrap();
+        std::env::set_var("THEA_HOME", dir.path());
+        let threads: Vec<_> = (0..8)
+            .map(|i| std::thread::spawn(move || secrets::set(&format!("p{i}"), &format!("k{i}"))))
+            .collect();
+        for t in threads {
+            t.join().unwrap().unwrap();
+        }
+        secrets::load(); // from disk, not the cache
+        for i in 0..8 {
+            assert_eq!(secrets::get(&format!("p{i}")), format!("k{i}"));
+        }
+    }
+
+    #[test]
+    fn saving_without_keys_creates_no_entries() {
+        let _g = test_env_lock();
+        let dir = tempfile::tempdir().unwrap();
+        std::env::set_var("THEA_HOME", dir.path());
+        save_providers_to_disk(&builtin_providers()).unwrap();
+        assert!(!dir.path().join("credentials").exists());
     }
 }

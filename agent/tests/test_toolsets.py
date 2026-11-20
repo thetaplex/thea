@@ -87,6 +87,37 @@ async def test_sources_json_is_read_only(turn_req, tmp_path: Path):
         assert (tmp_path / rel).read_text() == "[]"
 
 
+async def test_thea_credentials_are_hidden(turn_req, tmp_path: Path):
+    (tmp_path / ".thea").mkdir()
+    (tmp_path / ".thea" / "credentials").write_text(
+        "[openrouter]\napi_key = SECRET=1\n"
+    )
+    tt = await _build(_all_tools(turn_req), tmp_path)
+    calls = [
+        ToolCallPart("read_file", {"path": ".thea/credentials"}),
+        ToolCallPart("search_files", {"pattern": "SECRET"}),
+    ]
+    seen: list[str] = []
+
+    def model(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        step = sum(isinstance(m, ModelResponse) for m in messages)
+        if step < len(calls):
+            return ModelResponse(parts=[calls[step]])
+        seen.append(" ".join(str(m) for m in messages))
+        return ModelResponse(parts=[TextPart("done")])
+
+    agent = Agent(
+        FunctionModel(model),
+        deps_type=TurnDeps,
+        capabilities=tt.capabilities,
+        toolsets=tt.toolsets,
+        retries={"tools": 5},
+    )
+    await agent.run("go", deps=_deps(tmp_path))
+    assert "SECRET=1" not in seen[0]
+    assert "is denied by pattern" in seen[0]
+
+
 async def test_env_files_are_hidden(turn_req, tmp_path: Path):
     names = [".env", ".env.local", ".envrc", ".env-local"]
     for n in names:

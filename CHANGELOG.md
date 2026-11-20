@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Provider `API` keys are now in `~/.thea/credentials`, a file like `~/.aws/credentials` that only your user account can read, instead of the operating system keychain. Thea no longer asks for your keychain password. Keys saved in the keychain by earlier builds are not moved: enter them again in Settings. See [ADR 0003](docs/dev/adr/0003-credentials-file.md).
 - App icon from the ThetaPlex icon family (thetaplex/www ADR 0003), on every platform.
 - Thea's source code is now open source under the Apache License 2.0, in this repository. The user docs moved to `docs/`.
 

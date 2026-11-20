@@ -21,7 +21,7 @@ Thea ships with 2 personas. Each one has its own system prompt, tool set, and st
 - **Skills and lessons**: 13 bundled skills loaded on demand with `load_capability`. Thea records up to 20 lessons for each persona in `~/.thea/lessons/`. The lessons come from citation checks, ratings, and repeated tool errors.
 - **Model Context Protocol (`MCP`)**: connect `stdio` `MCP` servers. `sequential-thinking` and `playwright` ship as presets.
 - **Any model can use tools**: Thea uses the native tool calls of a model when the provider reports them. A model that cannot call tools natively chats without tools.
-- **Secrets in the keychain**: provider `API` keys live in the macOS Keychain or Windows Credential Manager, not in `~/.thea/*.json`.
+- **Keys in one file you control**: provider `API` keys live in `~/.thea/credentials`, readable only by your user account, like `~/.aws/credentials`. They are never in `~/.thea/*.json`.
 
 ## Download
 
