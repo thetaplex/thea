@@ -316,6 +316,9 @@ pub mod secrets {
         if key.contains(['\n', '\r']) || provider_id.contains(['\n', '\r', '[', ']']) {
             bail!("API key or provider id contains a line break or bracket");
         }
+        // Held across read, edit and write: two saves at once must not drop each other's key.
+        static WRITE: Mutex<()> = Mutex::new(());
+        let _w = WRITE.lock().unwrap_or_else(|e| e.into_inner());
         if get(provider_id) == key {
             return Ok(()); // every settings save re-sets every key
         }
@@ -379,17 +382,8 @@ pub fn load_providers_from_disk() -> Vec<ProviderEntry> {
     if let Ok(raw) = std::fs::read_to_string(&path) {
         if let Ok(mut list) = serde_json::from_str::<Vec<ProviderEntry>>(&raw) {
             if !list.is_empty() {
-                // Migrate any plaintext keys written by older builds into the credentials file.
-                let had_plaintext = list.iter().any(|p| !p.api_key.trim().is_empty());
                 for p in &mut list {
-                    if p.api_key.trim().is_empty() {
-                        p.api_key = secrets::get(&p.id);
-                    } else {
-                        let _ = secrets::set(&p.id, &p.api_key);
-                    }
-                }
-                if had_plaintext {
-                    let _ = save_providers_to_disk(&list);
+                    p.api_key = secrets::get(&p.id);
                 }
                 return list;
             }
@@ -1223,14 +1217,6 @@ impl Database {
             }
         };
 
-        // Legacy builds stored the OpenAI key in settings.json; move it to the credentials file once.
-        if !settings.openai_api_key.trim().is_empty() {
-            let _ = secrets::set("openai", &settings.openai_api_key);
-            settings.openai_api_key.clear();
-            if let Ok(json) = serde_json::to_string_pretty(&settings) {
-                let _ = std::fs::write(&settings_path, json);
-            }
-        }
         settings.openai_api_key = secrets::get("openai");
 
         // Sync provider_configs with ~/.thea/providers.json
@@ -1271,8 +1257,8 @@ impl Database {
     pub fn write_settings(&self, settings: &AppSettings) -> Result<()> {
         let settings_path = thea_home_dir().join("settings.json");
         let mut on_disk = settings.clone();
-        // Empty means "nothing to migrate", not "delete": key removal goes through
-        // save_provider, and settings.json never carries a key after migration.
+        // The Settings form sends the OpenAI key here. Empty is not "delete": clearing it
+        // also clears provider_configs["openai"], which save_providers_to_disk applies.
         if !on_disk.openai_api_key.is_empty() {
             secrets::set("openai", &on_disk.openai_api_key)?;
         }
@@ -1293,8 +1279,8 @@ impl Database {
                 entry.api_key = cfg.api_key.clone();
             }
         }
-        let _ = save_providers_to_disk(&providers);
-        Ok(())
+        // Keys live only in the credentials file: a failed write must reach the UI.
+        save_providers_to_disk(&providers)
     }
 
     pub fn list_projects(&self) -> Result<Vec<Project>> {
@@ -2060,6 +2046,23 @@ mod credentials_tests {
         secrets::set("a", "z").unwrap();
         assert_eq!(secrets::get("a"), "z");
         assert_eq!(secrets::get("b"), "y");
+    }
+
+    #[test]
+    fn concurrent_saves_keep_every_key() {
+        let _g = test_env_lock();
+        let dir = tempfile::tempdir().unwrap();
+        std::env::set_var("THEA_HOME", dir.path());
+        let threads: Vec<_> = (0..8)
+            .map(|i| std::thread::spawn(move || secrets::set(&format!("p{i}"), &format!("k{i}"))))
+            .collect();
+        for t in threads {
+            t.join().unwrap().unwrap();
+        }
+        secrets::load(); // from disk, not the cache
+        for i in 0..8 {
+            assert_eq!(secrets::get(&format!("p{i}")), format!("k{i}"));
+        }
     }
 
     #[test]
