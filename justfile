@@ -115,12 +115,8 @@ _on-main:
     git diff --quiet HEAD || { echo "commit or stash local changes first" >&2; exit 1; }
     [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] || { echo "main is not origin/main: pull or push first" >&2; exit 1; }
 
-# Build both installers, then tag and upload them to the GitHub release
-release: _on-main build
+# Tag main as v<version>; the Release workflow builds both installers and publishes the release.
+release: _on-main
     tag=v$(node -p "require('./package.json').version"); \
-    git tag "$tag" 2>/dev/null || true; git push origin "$tag"; \
-    { printf '%s\n\n' "Thea is in beta. The installers have no code signature from Apple or Microsoft, so macOS and Windows show a warning the first time you open Thea. See [Install Thea](https://github.com/thetaplex/thea/blob/main/docs/how-to/install-thea.md)."; awk -v h="## [${tag#v}]" 'index($0,h)==1{on=1;next} on&&/^## \[/{exit} on' CHANGELOG.md; } > release-notes.md; \
-    gh release view "$tag" --repo thetaplex/thea >/dev/null 2>&1 || gh release create "$tag" --repo thetaplex/thea --title "Thea $tag (beta)" --notes-file release-notes.md; rm -f release-notes.md; \
-    gh release upload "$tag" --repo thetaplex/thea --clobber \
-        src-tauri/target/release/bundle/dmg/*_${tag#v}_*.dmg \
-        src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*_${tag#v}_*-setup.exe
+    git tag "$tag" && git push origin "$tag" && \
+    echo "Release workflow: https://github.com/thetaplex/thea/actions/workflows/release.yml"
