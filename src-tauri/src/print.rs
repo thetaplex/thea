@@ -92,7 +92,11 @@ pub fn print_artifact(
 ) -> Result<(), String> {
     let id = uuid::Uuid::new_v4().to_string();
     let url = page_url(&id).parse().map_err(|e| format!("{e}"))?;
-    pages.0.lock().map_err(|e| e.to_string())?.insert(id.clone(), html);
+    pages
+        .0
+        .lock()
+        .map_err(|e| e.to_string())?
+        .insert(id.clone(), html);
     WebviewWindowBuilder::new(&app, format!("print-{id}"), WebviewUrl::External(url))
         .title(&title)
         .inner_size(860.0, 1000.0)
