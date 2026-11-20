@@ -6,11 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-20
+
 ### Changed
 
-- Provider `API` keys are now in `~/.thea/credentials`, a file like `~/.aws/credentials` that only your user account can read, instead of the operating system keychain. Thea no longer asks for your keychain password. Keys saved in the keychain by earlier builds are not moved: enter them again in Settings. See [ADR 0003](docs/dev/adr/0003-credentials-file.md).
+- Provider `API` keys are now in `~/.thea/credentials`, a file like `~/.aws/credentials` that only your user account can read, instead of the operating system keychain. Thea no longer asks for your keychain password. Keys saved in the keychain by earlier builds are not moved: enter them again in Settings. See [ADR 0003](https://github.com/thetaplex/thea/blob/main/docs/dev/adr/0003-credentials-file.md).
 - App icon from the ThetaPlex icon family (thetaplex/www ADR 0003), on every platform.
 - Thea's source code is now open source under the Apache License 2.0, in this repository. The user docs moved to `docs/`.
+
+### Security
+
+- Updated Tauri to 2.12.7, `rusqlite` to 0.43, and other dependencies.
+- The CI workflow token is read-only.
 
 ## [0.3.0] - 2026-11-19
 
