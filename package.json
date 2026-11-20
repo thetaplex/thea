@@ -38,5 +38,5 @@
     "@biomejs/biome": "^2.6.6"
   },
   "packageManager": "pnpm@9.15.4",
-  "license": "UNLICENSED"
+  "license": "Apache-2.0"
 }
